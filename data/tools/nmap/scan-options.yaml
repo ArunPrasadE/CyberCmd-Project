@@ -1,0 +1,244 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-n
+  flag: "-n"
+  name: "No DNS resolution"
+  summary: "Never resolves hostnames. Saves time, especially on large ranges."
+  group: scan-options
+  needs_root: false
+  conflicts: [nmap-R]
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -n 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-R
+  flag: "-R"
+  name: "Always resolve DNS"
+  summary: "Does reverse DNS for every target, including hosts that look down."
+  group: scan-options
+  needs_root: false
+  conflicts: [nmap-n]
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -R -sL 192.168.1.0/29"
+      note: "Reverse names for a small range"
+  verified:
+    status: unverified
+
+- id: nmap-p
+  flag: "-p"
+  name: "Port range"
+  summary: >
+    Chooses ports. Accepts lists and ranges; -p- means all 65535 ports.
+    Prefix with T: for TCP, U: for UDP, S: for SCTP or P: for IP protocol.
+  group: scan-options
+  args:
+    - name: ports
+      placeholder: "1-1024"
+  needs_root: false
+  noise: low
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "nmap -p 22,80,443 10.0.0.5"
+      note: "Specific ports"
+    - cmd: "nmap -p 1-1024 10.0.0.5"
+      note: "A range"
+    - cmd: "nmap -p- 10.0.0.5"
+      note: "All 65535 ports"
+  verified:
+    status: unverified
+
+- id: nmap-F
+  flag: "-F"
+  name: "Fast scan"
+  summary: "Scans only the 100 most common ports instead of 1000."
+  group: scan-options
+  needs_root: false
+  conflicts: [nmap-p]
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "nmap -F 192.168.1.10"
+      note: "Quick first look"
+  verified:
+    status: unverified
+
+- id: nmap-top-ports
+  flag: "--top-ports"
+  name: "Most common N ports"
+  summary: "Scans the N most common ports from Nmap's nmap-services list."
+  group: scan-options
+  args:
+    - name: count
+      type: number
+      placeholder: "200"
+  needs_root: false
+  conflicts: [nmap-F]
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "nmap --top-ports 200 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-r
+  flag: "-r"
+  name: "Sequential ports"
+  summary: "Scans ports in numerical order. By default Nmap randomizes the order."
+  group: scan-options
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -r -p 1-100 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-randomize-hosts
+  flag: "--randomize-hosts"
+  name: "Shuffle targets"
+  summary: >
+    Randomizes host order in groups of up to 16384, so a sweep looks less like a
+    straight walk through the range.
+  group: scan-options
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --randomize-hosts 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-scanflags
+  flag: "--scanflags"
+  name: "Custom TCP flags"
+  summary: >
+    Builds your own TCP scan by naming the flags to set: URG, ACK, PSH, RST, SYN, FIN.
+    Combine it with a base scan type to control how replies are read.
+  group: scan-options
+  args:
+    - name: tcp_flags
+      placeholder: "URGPSHFIN"
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -sA --scanflags URGPSHFIN 10.0.0.5"
+      note: "Custom flag combination"
+  verified:
+    status: unverified
+
+- id: nmap-g
+  flag: "-g"
+  name: "Fixed source port (--source-port)"
+  summary: >
+    Sends probes from one chosen source port. Some poorly written firewall rules trust
+    traffic from port 53 or 20. Works with raw-packet scans such as -sS and -sU, not
+    with -sT, version detection or scripts.
+  group: scan-options
+  args:
+    - name: port
+      type: number
+      placeholder: "53"
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -g 53 -sS 10.0.0.5"
+      note: "Probes appear to come from DNS"
+  verified:
+    status: unverified
+
+- id: nmap-S
+  flag: "-S"
+  name: "Spoof source IP"
+  summary: >
+    Sets a fake source address. Replies go to that address, so you usually will not
+    see results. -e and -Pn are generally needed too.
+  group: scan-options
+  args:
+    - name: ip
+      placeholder: "10.0.0.99"
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -S 10.0.0.99 -e eth0 -Pn 10.0.0.5"
+      note: "Used in firewall and IDS testing"
+  verified:
+    status: unverified
+
+- id: nmap-D
+  flag: "-D"
+  name: "Decoy scan"
+  summary: >
+    Mixes your real probes with probes that appear to come from decoy addresses.
+    ME marks where your real address goes; RND:n adds n random decoys. Works with
+    host discovery, port scans and -O, not with -sV or -sT.
+  group: scan-options
+  args:
+    - name: decoys
+      placeholder: "RND:5,ME"
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -D RND:5,ME 10.0.0.5"
+      note: "Five random decoys plus you"
+    - cmd: "sudo nmap -D 10.0.0.7,10.0.0.8,ME 10.0.0.5"
+      note: "Chosen decoys"
+  verified:
+    status: unverified
+
+- id: nmap-e
+  flag: "-e"
+  name: "Network interface"
+  summary: "Forces the interface Nmap sends from. Needed on multi-homed machines and for -S."
+  group: scan-options
+  args:
+    - name: interface
+      placeholder: "eth0"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap -e eth0 10.0.0.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-send-eth
+  flag: "--send-eth"
+  name: "Raw Ethernet frames"
+  summary: "Sends packets at the Ethernet layer instead of through the IP stack."
+  group: scan-options
+  needs_root: true
+  conflicts: [nmap-send-ip]
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --send-eth 192.168.1.10"
+  verified:
+    status: unverified
+
+- id: nmap-send-ip
+  flag: "--send-ip"
+  name: "Raw IP packets"
+  summary: >
+    Sends raw IP packets instead of Ethernet frames. On a local network this also
+    turns off the automatic ARP discovery.
+  group: scan-options
+  needs_root: true
+  conflicts: [nmap-send-eth]
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --send-ip 192.168.1.10"
+  verified:
+    status: unverified

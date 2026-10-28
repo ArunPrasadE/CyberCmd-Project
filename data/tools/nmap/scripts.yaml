@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+# New in CyberCmd (not in the prototype).
+
+- id: nmap-sC
+  flag: "-sC"
+  name: "Default scripts"
+  summary: >
+    Runs the Nmap Scripting Engine's "default" script set: safe, useful checks such as
+    page titles, SSH host keys and SMB info. Same as --script=default.
+  group: scripts
+  needs_root: false
+  noise: medium
+  status: current
+  goals: [enumeration]
+  examples:
+    - cmd: "nmap -sC -sV 10.0.0.5"
+      note: "The usual first enumeration scan in CTFs"
+  verified:
+    status: unverified
+
+- id: nmap-script
+  flag: "--script"
+  name: "Run chosen scripts"
+  summary: >
+    Runs NSE scripts by name, category (default, safe, vuln, auth, discovery...),
+    file or folder. Comma-separate several. Some categories (intrusive, exploit, dos)
+    can harm targets, so use them only in your lab.
+  group: scripts
+  args:
+    - name: scripts
+      placeholder: "vuln"
+  needs_root: false
+  noise: high
+  status: current
+  goals: [enumeration, vuln-assessment]
+  examples:
+    - cmd: "nmap --script vuln -p 80,443 10.0.0.5"
+      note: "Check web ports for known vulnerabilities"
+    - cmd: "nmap --script http-title,ssh-hostkey 10.0.0.5"
+      note: "Two named scripts"
+  verified:
+    status: unverified

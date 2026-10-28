@@ -1,0 +1,186 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-6
+  flag: "-6"
+  name: "IPv6"
+  summary: "Enables IPv6 scanning. Give the target as an IPv6 address or hostname."
+  group: misc
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -6 fe80::1%eth0"
+      note: "Link-local address with interface"
+    - cmd: "nmap -6 -sV ipv6.example.com"
+  verified:
+    status: unverified
+
+- id: nmap-V
+  flag: "-V"
+  name: "Print version"
+  summary: "Shows the Nmap version and build details, then exits. Also written --version."
+  group: misc
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -V"
+  verified:
+    status: unverified
+
+- id: nmap-datadir
+  flag: "--datadir"
+  name: "Custom data directory"
+  summary: >
+    Tells Nmap where to find its data files such as nmap-services and the OS and
+    version fingerprint databases.
+  group: misc
+  args:
+    - name: dir
+      placeholder: "/opt/nmap-data"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --datadir /opt/nmap-data 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-privileged
+  flag: "--privileged"
+  name: "Assume root rights"
+  summary: >
+    Tells Nmap to act as if you have raw-socket privileges, for setups where
+    capabilities are granted without uid 0.
+  group: misc
+  needs_root: false
+  conflicts: [nmap-unprivileged]
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --privileged -sS 10.0.0.5"
+      note: "On a system where the nmap binary has raw-socket capabilities"
+  verified:
+    status: unverified
+
+- id: nmap-unprivileged
+  flag: "--unprivileged"
+  name: "Assume no root rights"
+  summary: >
+    Tells Nmap to act as if it lacks raw-socket privileges, even when run as root.
+    Handy for seeing what a normal user's scan looks like.
+  group: misc
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --unprivileged 10.0.0.5"
+      note: "Falls back to connect scan"
+  verified:
+    status: unverified
+
+- id: nmap-f
+  flag: "-f"
+  name: "Fragment packets"
+  summary: >
+    Splits probes into tiny IP fragments (8 bytes after the IP header) to get past
+    simple packet filters. Giving -f twice (-ff) uses 16-byte fragments.
+  group: misc
+  needs_root: true
+  conflicts: [nmap-mtu]
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -f -sS 10.0.0.5"
+      note: "8-byte fragments"
+  verified:
+    status: unverified
+
+- id: nmap-mtu
+  flag: "--mtu"
+  name: "Custom fragment size"
+  summary: "Sets the fragment size yourself. Must be a multiple of 8. Do not combine with -f."
+  group: misc
+  args:
+    - name: bytes
+      type: number
+      placeholder: "16"
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap --mtu 16 -sS 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-data-length
+  flag: "--data-length"
+  name: "Pad packets"
+  summary: >
+    Appends random bytes to most ping and port-scan packets so they do not match the
+    usual fixed Nmap packet sizes. OS detection probes are not changed.
+  group: misc
+  args:
+    - name: bytes
+      type: number
+      placeholder: "25"
+  needs_root: true
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --data-length 25 -sS 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-ttl
+  flag: "--ttl"
+  name: "Set IP time-to-live"
+  summary: >
+    Sets the IPv4 TTL on outgoing packets. Handy for testing how far a probe travels
+    before a filter drops it.
+  group: misc
+  args:
+    - name: ttl
+      type: number
+      placeholder: "64"
+  needs_root: true
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --ttl 64 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-spoof-mac
+  flag: "--spoof-mac"
+  name: "Spoof MAC address"
+  summary: >
+    Uses a chosen MAC address. Pass 0 for a random one, a vendor name such as Apple,
+    or a full MAC. Implies --send-eth and only affects the local Ethernet segment.
+  group: misc
+  args:
+    - name: mac
+      placeholder: "0"
+  needs_root: true
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap --spoof-mac 0 -Pn 192.168.1.10"
+      note: "Random MAC"
+    - cmd: "sudo nmap --spoof-mac Dell -Pn 192.168.1.10"
+      note: "Dell-prefixed MAC"
+  verified:
+    status: unverified
+
+- id: nmap-h
+  flag: "-h"
+  name: "Help"
+  summary: "Prints the built-in option summary and exits. For the full manual run: man nmap."
+  group: misc
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -h"
+  verified:
+    status: unverified

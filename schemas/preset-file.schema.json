@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "tool": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*$"
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "flags": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+                },
+                "args": {
+                  "default": {},
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": [
+                      "string",
+                      "number"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "target": {
+            "default": "",
+            "type": "string"
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "goals": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "recon",
+                "enumeration",
+                "vuln-assessment",
+                "exploitation",
+                "post-exploitation",
+                "monitoring",
+                "forensics"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "summary",
+          "flags",
+          "command"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "tool",
+    "presets"
+  ],
+  "additionalProperties": false
+}

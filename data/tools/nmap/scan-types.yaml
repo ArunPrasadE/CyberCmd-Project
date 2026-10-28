@@ -1,0 +1,252 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+# Only one TCP scan type can run at a time (-sS -sT -sA -sW -sM -sN -sF -sX -sI -b).
+# -sU and -sO can be combined with one of them.
+
+- id: nmap-sT
+  flag: "-sT"
+  name: "TCP connect scan"
+  summary: >
+    Completes the full three-way handshake through the OS connect() call.
+    Needs no root, but it is slower and shows up in the target application's logs.
+    Default scan type when you are not root.
+  group: scan-types
+  needs_root: false
+  conflicts: [nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: high
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "nmap -sT 192.168.1.10"
+      note: "Connect scan of the top 1000 ports"
+    - cmd: "nmap -sT -p 22,80,443 192.168.1.10"
+      note: "Only three ports"
+  verified:
+    status: unverified
+
+- id: nmap-sS
+  flag: "-sS"
+  name: "SYN (half-open) scan"
+  summary: >
+    Sends a SYN, treats SYN/ACK as open and RST as closed, then resets before
+    the handshake completes. Default scan when run as root. Fast, and less likely
+    to be logged by the application.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "sudo nmap -sS 10.0.0.5"
+      note: "Standard stealth scan"
+    - cmd: "sudo nmap -sS -p- 10.0.0.5"
+      note: "All 65535 ports"
+  verified:
+    status: unverified
+
+- id: nmap-sU
+  flag: "-sU"
+  name: "UDP scan"
+  summary: >
+    Sends UDP probes. A closed port returns ICMP port unreachable; silence means
+    open|filtered. Slow because of ICMP rate limits, so keep the port list short.
+    Can be combined with one TCP scan type.
+  group: scan-types
+  needs_root: true
+  noise: medium
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "sudo nmap -sU -p 53,123,161 10.0.0.5"
+      note: "DNS, NTP and SNMP"
+    - cmd: "sudo nmap -sS -sU -p T:80,U:53 10.0.0.5"
+      note: "TCP and UDP in one run"
+  verified:
+    status: unverified
+
+- id: nmap-sA
+  flag: "-sA"
+  name: "ACK scan"
+  summary: >
+    Sends bare ACK packets. It cannot tell open from closed. It tells you whether
+    a port is filtered, so it is used to map firewall rules and spot stateless filtering.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sA 10.0.0.5"
+      note: "Ports reported 'unfiltered' got a RST back; 'filtered' did not"
+  verified:
+    status: unverified
+
+- id: nmap-sN
+  flag: "-sN"
+  name: "Null scan"
+  summary: >
+    Sends TCP packets with no flags set. RFC-compliant stacks reply RST from closed
+    ports and stay silent on open ones, so no reply means open|filtered.
+    Windows replies RST either way.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sN -p 1-1000 10.0.0.5"
+      note: "Useful against simple stateless filters"
+  verified:
+    status: unverified
+
+- id: nmap-sF
+  flag: "-sF"
+  name: "FIN scan"
+  summary: >
+    Sends a lone FIN flag. Same logic as the Null scan: RST means closed,
+    silence means open|filtered.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sF -p 22,80 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-sX
+  flag: "-sX"
+  name: "Xmas scan"
+  summary: >
+    Sets FIN, PSH and URG so the packet is "lit up like a Christmas tree".
+    Same open|filtered logic as Null and FIN.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sX -p 1-1000 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-sW
+  flag: "-sW"
+  name: "Window scan"
+  summary: >
+    Like ACK scan but reads the TCP window field in the RST reply. On a few systems
+    a non-zero window means open and zero means closed.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sW 10.0.0.5"
+      note: "Results depend on the target OS, compare with -sA"
+  verified:
+    status: unverified
+
+- id: nmap-sM
+  flag: "-sM"
+  name: "Maimon scan"
+  summary: >
+    Sends FIN/ACK. Some BSD-derived systems drop the packet on open ports
+    instead of replying RST.
+  group: scan-types
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sN, nmap-sF, nmap-sX, nmap-sI, nmap-b]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sM 10.0.0.5"
+      note: "Rarely useful on modern systems"
+  verified:
+    status: unverified
+
+- id: nmap-sO
+  flag: "-sO"
+  name: "IP protocol scan"
+  summary: >
+    Finds which IP protocols the host supports (ICMP, TCP, UDP, GRE, ESP and so on)
+    rather than which ports are open.
+  group: scan-types
+  needs_root: true
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sO 10.0.0.1"
+      note: "Handy for routers and firewalls"
+  verified:
+    status: unverified
+
+- id: nmap-sI
+  flag: "-sI"
+  name: "Idle (zombie) scan"
+  summary: >
+    Bounces probes off an idle "zombie" host and reads its IP ID counter, so the
+    target never sees your address. The zombie must be quiet and use predictable
+    IP IDs. Only use zombies you control or are authorized to use.
+  group: scan-types
+  args:
+    - name: zombie
+      placeholder: "10.0.0.20:80"
+  needs_root: true
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-b]
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sI 10.0.0.20:80 10.0.0.5"
+      note: "Zombie 10.0.0.20, probe port 80"
+  verified:
+    status: unverified
+
+- id: nmap-sL
+  flag: "-sL"
+  name: "List scan"
+  summary: >
+    Lists every target and its reverse DNS name without sending any packet to the
+    targets. Good for double-checking a range before you scan it. Cannot be combined
+    with port scanning, OS detection or host discovery.
+  group: scan-types
+  needs_root: false
+  # Conflicts work both ways, so listing them here is enough.
+  conflicts: [nmap-sn, nmap-sT, nmap-sS, nmap-sU, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sO, nmap-sI, nmap-b, nmap-O, nmap-A]
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "nmap -sL 192.168.1.0/29"
+      note: "Expands the range, no traffic to the hosts"
+  verified:
+    status: unverified
+
+- id: nmap-b
+  flag: "-b"
+  name: "FTP bounce scan"
+  summary: >
+    Abuses the FTP PORT command so a third-party FTP server scans the target for you.
+    Almost every FTP server blocks this today.
+  group: scan-types
+  args:
+    - name: ftp_relay
+      placeholder: "user:pass@server:port"
+  needs_root: false
+  conflicts: [nmap-sT, nmap-sS, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sI]
+  noise: medium
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "nmap -b anonymous:x@ftp.example.com 10.0.0.5"
+      note: "Works only on very old FTP servers"
+  verified:
+    status: unverified

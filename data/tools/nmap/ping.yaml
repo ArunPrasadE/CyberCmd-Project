@@ -1,0 +1,150 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-sn
+  flag: "-sn"
+  name: "Ping scan (no port scan)"
+  summary: >
+    Host discovery only: finds which hosts are up, then stops without scanning ports.
+    Can be combined with the -P* probe options, which replace the default probes.
+  group: ping
+  needs_root: false
+  # Conflicts work both ways, so listing them here is enough.
+  conflicts: [nmap-sT, nmap-sS, nmap-sU, nmap-sA, nmap-sW, nmap-sM, nmap-sN, nmap-sF, nmap-sX, nmap-sO, nmap-sI, nmap-b]
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "nmap -sn 192.168.1.0/24"
+      note: "Which hosts are up on the subnet"
+  verified:
+    status: unverified
+
+- id: nmap-Pn
+  flag: "-Pn"
+  name: "Skip host discovery"
+  summary: >
+    Treats every target as up and goes straight to port scanning. Use it when ICMP
+    is blocked and live hosts show as down. Slow on large ranges.
+  group: ping
+  needs_root: false
+  noise: medium
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "nmap -Pn -p 22,443 10.0.0.5"
+      note: "Scan a host that ignores ping"
+  verified:
+    status: unverified
+
+- id: nmap-PS
+  flag: "-PS"
+  name: "TCP SYN ping"
+  summary: >
+    Sends a SYN to the given ports (default 80) and counts any SYN/ACK or RST as proof
+    the host is up. No space between -PS and the port list.
+  group: ping
+  args:
+    - name: ports
+      placeholder: "22,80,443"
+      required: false
+      join: attached
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PS22,80,443 192.168.1.0/24"
+      note: "Discovery using three ports"
+  verified:
+    status: unverified
+
+- id: nmap-PA
+  flag: "-PA"
+  name: "TCP ACK ping"
+  summary: >
+    Sends an ACK to the given ports (default 80). Can pass stateless firewalls that
+    drop incoming SYNs.
+  group: ping
+  args:
+    - name: ports
+      placeholder: "80"
+      required: false
+      join: attached
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PA80 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-PU
+  flag: "-PU"
+  name: "UDP ping"
+  summary: >
+    Sends a UDP packet to the given ports (default 40125). A closed port answers with
+    ICMP port unreachable, which proves the host is alive.
+  group: ping
+  args:
+    - name: ports
+      placeholder: "53"
+      required: false
+      join: attached
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PU53 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-PE
+  flag: "-PE"
+  name: "ICMP echo ping"
+  summary: >
+    Classic ping request. Fast, but many networks filter it. Raw ICMP needs root;
+    without it Nmap falls back to TCP probes.
+  group: ping
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PE 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-PP
+  flag: "-PP"
+  name: "ICMP timestamp ping"
+  summary: >
+    Sends an ICMP timestamp request. Sometimes answered when echo is blocked.
+    Needs root like -PE.
+  group: ping
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PP 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-PR
+  flag: "-PR"
+  name: "ARP ping"
+  summary: >
+    Uses ARP requests on the local Ethernet segment. Fast and reliable, and used
+    automatically for local targets when you are root (unless --send-ip is given).
+  group: ping
+  needs_root: true
+  noise: low
+  status: current
+  goals: [recon]
+  examples:
+    - cmd: "sudo nmap -sn -PR 192.168.1.0/24"
+      note: "LAN sweep, finds hosts that block ICMP too"
+  verified:
+    status: unverified

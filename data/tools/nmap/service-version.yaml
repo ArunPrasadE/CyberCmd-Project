@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-sV
+  flag: "-sV"
+  name: "Version detection"
+  summary: >
+    Probes open ports to identify the service name and version, such as OpenSSH 8.9
+    or nginx 1.24.
+  group: service-version
+  needs_root: false
+  noise: medium
+  status: current
+  goals: [enumeration, vuln-assessment]
+  examples:
+    - cmd: "nmap -sV -p 21,22,80 10.0.0.5"
+      note: "Versions on three ports"
+    - cmd: "sudo nmap -sS -sV 10.0.0.5"
+      note: "Common pairing"
+  verified:
+    status: unverified
+
+- id: nmap-version-intensity
+  flag: "--version-intensity"
+  name: "Probe intensity 0-9"
+  summary: >
+    Sets how many probes -sV tries. Higher is more accurate and slower. Default is 7.
+    Only has an effect together with -sV (or -A).
+  group: service-version
+  args:
+    - name: level
+      type: choice
+      placeholder: "5"
+      choices:
+        - { value: "0" }
+        - { value: "1" }
+        - { value: "2", note: "Same as --version-light" }
+        - { value: "3" }
+        - { value: "4" }
+        - { value: "5" }
+        - { value: "6" }
+        - { value: "7", note: "Default" }
+        - { value: "8" }
+        - { value: "9", note: "Same as --version-all" }
+  needs_root: false
+  conflicts: [nmap-version-light, nmap-version-all]
+  noise: medium
+  status: current
+  goals: [enumeration]
+  examples:
+    - cmd: "nmap -sV --version-intensity 5 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-version-light
+  flag: "--version-light"
+  name: "Light version scan"
+  summary: "Shortcut for intensity 2. Tries only the most likely probes, so it is quick."
+  group: service-version
+  needs_root: false
+  conflicts: [nmap-version-all]
+  noise: low
+  status: current
+  goals: [enumeration]
+  examples:
+    - cmd: "nmap -sV --version-light 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-version-all
+  flag: "--version-all"
+  name: "Try every probe"
+  summary: "Shortcut for intensity 9. Slowest, but best chance at identifying odd services."
+  group: service-version
+  needs_root: false
+  noise: medium
+  status: current
+  goals: [enumeration]
+  examples:
+    - cmd: "nmap -sV --version-all -p 8443 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-version-trace
+  flag: "--version-trace"
+  name: "Version debug trace"
+  summary: >
+    Prints detailed information about what version detection is doing. Good for
+    troubleshooting a wrong fingerprint.
+  group: service-version
+  needs_root: false
+  noise: medium
+  status: current
+  examples:
+    - cmd: "nmap -sV --version-trace -p 80 10.0.0.5"
+  verified:
+    status: unverified

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Validate data
+        run: npm run validate
+      - name: JSON schemas are up to date
+        run: |
+          npm run schema
+          git diff --exit-code schemas || (echo "::error::Run 'npm run schema' and commit the result" && exit 1)
+      - run: npm test
+      - run: npm run build

@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-iL
+  flag: "-iL"
+  name: "Targets from file"
+  summary: "Reads targets from a file, one host, range or CIDR block per line."
+  group: input
+  args:
+    - name: file
+      placeholder: "targets.txt"
+  supplies_targets: true
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -iL targets.txt"
+      note: "Scan every line of targets.txt"
+    - cmd: "nmap -sS -p 80,443 -iL targets.txt"
+      note: "Combine with other options"
+  verified:
+    status: unverified
+
+- id: nmap-iR
+  flag: "-iR"
+  name: "Random targets"
+  summary: >
+    Picks the given number of random public hosts. Pair it only with -sL so no packets
+    reach hosts you do not own. Scanning random internet hosts is not authorized testing.
+  group: input
+  args:
+    - name: count
+      type: number
+      placeholder: "10"
+  supplies_targets: true
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -iR 10 -sL"
+      note: "Print 10 random targets without scanning them"
+  verified:
+    status: unverified
+
+- id: nmap-exclude
+  flag: "--exclude"
+  name: "Exclude hosts"
+  summary: >
+    Removes hosts or ranges from the target list. Use it to keep gateways, printers or
+    fragile devices out of a scan.
+  group: input
+  args:
+    - name: hosts
+      placeholder: "192.168.1.1,192.168.1.254"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap 192.168.1.0/24 --exclude 192.168.1.1,192.168.1.254"
+  verified:
+    status: unverified
+
+- id: nmap-excludefile
+  flag: "--excludefile"
+  name: "Exclude from file"
+  summary: "Same as --exclude but reads the list from a file."
+  group: input
+  args:
+    - name: file
+      placeholder: "skip.txt"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap 192.168.1.0/24 --excludefile skip.txt"
+  verified:
+    status: unverified

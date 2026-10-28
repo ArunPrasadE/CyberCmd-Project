@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=../../../schemas/tool.schema.json
+id: nmap
+name: "Nmap"
+binary: "nmap"
+summary: "Network scanner for host discovery, port scanning, service and OS detection."
+homepage: "https://nmap.org/book/man.html"
+
+# Order here is the order in the UI and in built commands.
+groups:
+  - id: scan-types
+    name: "Scan Types"
+  - id: ping
+    name: "Ping (Host Discovery)"
+  - id: input
+    name: "Input"
+  - id: scan-options
+    name: "Scan Options"
+  - id: service-version
+    name: "Service / Version"
+  - id: scripts
+    name: "Scripts (NSE)"
+  - id: os-detection
+    name: "OS Detection"
+  - id: timing
+    name: "Timing"
+  - id: output
+    name: "Output"
+  - id: misc
+    name: "Misc"

@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+# New in CyberCmd (not in the prototype).
+
+- id: nmap-oN
+  flag: "-oN"
+  name: "Normal output to file"
+  summary: "Saves the same human-readable output you see on screen to a file."
+  group: output
+  args:
+    - name: file
+      placeholder: "scan.txt"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -sV -oN scan.txt 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-oX
+  flag: "-oX"
+  name: "XML output to file"
+  summary: "Saves results as XML, for other tools to import (e.g. Metasploit, reports)."
+  group: output
+  args:
+    - name: file
+      placeholder: "scan.xml"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -sV -oX scan.xml 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-oG
+  flag: "-oG"
+  name: "Grepable output to file"
+  summary: "One line per host, easy to filter with grep, awk or cut. Deprecated in favour of XML but still common."
+  group: output
+  args:
+    - name: file
+      placeholder: "scan.gnmap"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -p 22 -oG ssh.gnmap 192.168.1.0/24"
+      note: "Then: grep open ssh.gnmap"
+  verified:
+    status: unverified
+
+- id: nmap-oA
+  flag: "-oA"
+  name: "All three formats"
+  summary: >
+    Saves normal, XML and grepable output at once, as <basename>.nmap, .xml and .gnmap.
+    A good habit for every real scan.
+  group: output
+  args:
+    - name: basename
+      placeholder: "scans/target1"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -sC -sV -oA scans/target1 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-v
+  flag: "-v"
+  name: "Verbose"
+  summary: >
+    Prints more detail while the scan runs, including open ports as soon as they are
+    found. Use -vv for even more.
+  group: output
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap -v -p- 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-open
+  flag: "--open"
+  name: "Show only open ports"
+  summary: "Hides closed and filtered ports (and hosts with no open ports) from the output."
+  group: output
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --open -p 80,443 192.168.1.0/24"
+      note: "Only hosts with a web port open"
+  verified:
+    status: unverified
+
+- id: nmap-reason
+  flag: "--reason"
+  name: "Show why a port has its state"
+  summary: >
+    Adds a column explaining each port state, such as syn-ack, reset or no-response.
+    Very useful while learning what each scan type does.
+  group: output
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap -sS --reason -p 22,80 10.0.0.5"
+  verified:
+    status: unverified

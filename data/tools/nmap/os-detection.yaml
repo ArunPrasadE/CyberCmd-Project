@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+
+- id: nmap-O
+  flag: "-O"
+  name: "OS detection"
+  summary: >
+    Fingerprints the target's TCP/IP stack to guess the operating system. Works best
+    with at least one open and one closed port.
+  group: os-detection
+  needs_root: true
+  noise: medium
+  status: current
+  goals: [enumeration]
+  examples:
+    - cmd: "sudo nmap -O 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-osscan-limit
+  flag: "--osscan-limit"
+  name: "Only promising targets"
+  summary: >
+    Skips OS detection on hosts that lack both an open and a closed port. Saves time
+    on big ranges. Only has an effect with -O (or -A).
+  group: os-detection
+  needs_root: true
+  noise: low
+  status: current
+  examples:
+    - cmd: "sudo nmap -O --osscan-limit 10.0.0.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-osscan-guess
+  flag: "--osscan-guess"
+  name: "Aggressive OS guess"
+  summary: >
+    Prints the closest OS match even when Nmap is not confident. Also written --fuzzy.
+    Only has an effect with -O (or -A).
+  group: os-detection
+  needs_root: true
+  noise: medium
+  status: current
+  examples:
+    - cmd: "sudo nmap -O --osscan-guess 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-A
+  flag: "-A"
+  name: "Aggressive scan"
+  summary: >
+    Turns on OS detection, version detection, default scripts and traceroute in one
+    flag. Thorough but noisy.
+  group: os-detection
+  needs_root: true
+  noise: high
+  status: current
+  goals: [recon, enumeration]
+  examples:
+    - cmd: "sudo nmap -A -T4 10.0.0.5"
+      note: "The common 'give me everything' scan"
+  verified:
+    status: unverified

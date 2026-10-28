@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+      },
+      "flag": {
+        "type": "string",
+        "pattern": "^--?[A-Za-z0-9]"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 1
+      },
+      "group": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+      },
+      "args": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "type": {
+              "default": "string",
+              "type": "string",
+              "enum": [
+                "string",
+                "number",
+                "choice"
+              ]
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "note": {
+                    "default": "",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "placeholder": {
+              "default": "",
+              "type": "string"
+            },
+            "required": {
+              "default": true,
+              "type": "boolean"
+            },
+            "join": {
+              "default": "space",
+              "type": "string",
+              "enum": [
+                "space",
+                "equals",
+                "attached"
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "needs_root": {
+        "type": "boolean"
+      },
+      "conflicts": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+        }
+      },
+      "requires": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+        }
+      },
+      "supplies_targets": {
+        "default": false,
+        "type": "boolean"
+      },
+      "noise": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "current",
+          "deprecated",
+          "removed"
+        ]
+      },
+      "replacement": {
+        "default": null,
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[A-Za-z0-9]+)*$"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "goals": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "recon",
+            "enumeration",
+            "vuln-assessment",
+            "exploitation",
+            "post-exploitation",
+            "monitoring",
+            "forensics"
+          ]
+        }
+      },
+      "examples": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cmd": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "default": "",
+              "type": "string"
+            }
+          },
+          "required": [
+            "cmd"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "verified": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "const": "unverified"
+              },
+              "date": {
+                "default": null,
+                "type": "null"
+              },
+              "target": {
+                "default": null,
+                "type": "null"
+              },
+              "note": {
+                "default": "",
+                "type": "string"
+              }
+            },
+            "required": [
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "const": "verified"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "target": {
+                "type": "string",
+                "minLength": 1
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "status",
+              "date",
+              "target",
+              "note"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "required": [
+      "id",
+      "flag",
+      "name",
+      "summary",
+      "group",
+      "needs_root",
+      "noise",
+      "status",
+      "examples",
+      "verified"
+    ],
+    "additionalProperties": false
+  }
+}

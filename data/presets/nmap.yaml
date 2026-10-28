@@ -1,0 +1,245 @@
+# yaml-language-server: $schema=../../schemas/preset-file.schema.json
+# Ready-made scans. `command` is the exact text the Builder must produce
+# (flags in group order, no sudo); scripts/presets.test.ts checks every one.
+# Targets are lab placeholders: replace them with your own lab, a TryHackMe box,
+# or scanme.nmap.org (low rate only).
+tool: nmap
+
+presets:
+  # ---------- Discovery ----------
+  - id: nmap-host-discovery
+    name: "Who is up on the subnet?"
+    summary: "Ping sweep: lists live hosts without scanning any ports. The usual first step on a new network."
+    flags:
+      - id: nmap-sn
+    target: "192.168.1.0/24"
+    command: "nmap -sn 192.168.1.0/24"
+    goals: [recon]
+
+  - id: nmap-arp-sweep
+    name: "LAN sweep with ARP"
+    summary: "Finds every device on your local network, even ones that ignore ping. Needs root."
+    flags:
+      - id: nmap-sn
+      - id: nmap-PR
+    target: "192.168.1.0/24"
+    command: "nmap -sn -PR 192.168.1.0/24"
+    goals: [recon]
+
+  - id: nmap-list-targets
+    name: "Preview a target range"
+    summary: "Expands a range and shows reverse DNS names without sending anything to the hosts. Check scope before scanning."
+    flags:
+      - id: nmap-sL
+    target: "192.168.1.0/29"
+    command: "nmap -sL 192.168.1.0/29"
+    goals: [recon]
+
+  - id: nmap-no-ping
+    name: "Scan a host that blocks ping"
+    summary: "Skips host discovery and scans straight away. Use when a host you know is up shows as down."
+    flags:
+      - id: nmap-Pn
+      - id: nmap-p
+        args: { ports: "22,3389" }
+    target: "10.0.0.5"
+    command: "nmap -Pn -p 22,3389 10.0.0.5"
+    goals: [recon]
+
+  # ---------- Port scans ----------
+  - id: nmap-quick-syn
+    name: "Quick SYN scan of common web ports"
+    summary: "Fast half-open scan of SSH and web ports on one host."
+    flags:
+      - id: nmap-sS
+      - id: nmap-p
+        args: { ports: "22,80,443" }
+      - id: nmap-T
+        args: { level: "4" }
+    target: "10.0.0.5"
+    command: "nmap -sS -p 22,80,443 -T4 10.0.0.5"
+    goals: [recon]
+
+  - id: nmap-fast-top100
+    name: "Fast look at the top 100 ports"
+    summary: "The 100 most common ports at aggressive timing. Good first scan of a single lab host."
+    flags:
+      - id: nmap-F
+      - id: nmap-T
+        args: { level: "4" }
+    target: "10.0.0.5"
+    command: "nmap -F -T4 10.0.0.5"
+    goals: [recon]
+
+  - id: nmap-full-tcp
+    name: "Every TCP port, fast"
+    summary: "All 65535 TCP ports with a minimum packet rate. Finds services on unusual ports (common in CTFs). Lab use only."
+    flags:
+      - id: nmap-p
+        args: { ports: "1-65535" }
+      - id: nmap-T
+        args: { level: "4" }
+      - id: nmap-min-rate
+        args: { pps: 1000 }
+    target: "10.0.0.5"
+    command: "nmap -p 1-65535 -T4 --min-rate 1000 10.0.0.5"
+    goals: [recon, enumeration]
+
+  - id: nmap-connect-learn
+    name: "Connect scan with explanations"
+    summary: "No-root scan of the first 1024 ports that shows open ports as they are found and why each port got its state."
+    flags:
+      - id: nmap-sT
+      - id: nmap-p
+        args: { ports: "1-1024" }
+      - id: nmap-v
+      - id: nmap-reason
+    target: "10.0.0.5"
+    command: "nmap -sT -p 1-1024 -v --reason 10.0.0.5"
+    goals: [recon]
+
+  - id: nmap-udp-common
+    name: "Common UDP services"
+    summary: "DNS, DHCP, NTP and SNMP. UDP is slow, so keep the port list short. Needs root."
+    flags:
+      - id: nmap-sU
+      - id: nmap-p
+        args: { ports: "53,67,123,161" }
+    target: "10.0.0.5"
+    command: "nmap -sU -p 53,67,123,161 10.0.0.5"
+    goals: [recon, enumeration]
+
+  - id: nmap-tcp-udp
+    name: "TCP and UDP in one run"
+    summary: "SYN scan for TCP and a UDP scan together, with T: and U: picking ports per protocol. Needs root."
+    flags:
+      - id: nmap-sS
+      - id: nmap-sU
+      - id: nmap-p
+        args: { ports: "T:22,80,U:53,161" }
+    target: "10.0.0.5"
+    command: "nmap -sS -sU -p T:22,80,U:53,161 10.0.0.5"
+    goals: [recon, enumeration]
+
+  - id: nmap-quiet-slow
+    name: "Slow and quiet"
+    summary: "SYN scan at Sneaky timing (15 s between probes). See how timing affects IDS alerts in your lab; expect it to take a while."
+    flags:
+      - id: nmap-sS
+      - id: nmap-p
+        args: { ports: "22,80" }
+      - id: nmap-T
+        args: { level: "1" }
+    target: "10.0.0.5"
+    command: "nmap -sS -p 22,80 -T1 10.0.0.5"
+    goals: [recon]
+
+  # ---------- Enumeration ----------
+  - id: nmap-ctf-enum
+    name: "Standard CTF enumeration"
+    summary: "Service versions plus default scripts, saved in all three output formats. The classic first scan on a TryHackMe box."
+    flags:
+      - id: nmap-sV
+      - id: nmap-sC
+      - id: nmap-oA
+        args: { basename: "scans/target" }
+    target: "10.0.0.5"
+    command: "nmap -sV -sC -oA scans/target 10.0.0.5"
+    goals: [enumeration]
+
+  - id: nmap-aggressive
+    name: "Everything at once"
+    summary: "-A turns on OS detection, versions, default scripts and traceroute. Thorough and noisy. Needs root."
+    flags:
+      - id: nmap-A
+      - id: nmap-T
+        args: { level: "4" }
+    target: "10.0.0.5"
+    command: "nmap -A -T4 10.0.0.5"
+    goals: [recon, enumeration]
+
+  - id: nmap-quick-versions
+    name: "Quick version check"
+    summary: "Light version detection on the 100 most common ports. Faster than full -sV when you just need a rough picture."
+    flags:
+      - id: nmap-top-ports
+        args: { count: 100 }
+      - id: nmap-sV
+      - id: nmap-version-light
+    target: "10.0.0.5"
+    command: "nmap --top-ports 100 -sV --version-light 10.0.0.5"
+    goals: [enumeration]
+
+  - id: nmap-os-detect
+    name: "Guess the operating system"
+    summary: "TCP/IP fingerprinting, printing a best guess even when Nmap is unsure. Needs root."
+    flags:
+      - id: nmap-O
+      - id: nmap-osscan-guess
+    target: "10.0.0.5"
+    command: "nmap -O --osscan-guess 10.0.0.5"
+    goals: [enumeration]
+
+  - id: nmap-web-titles
+    name: "Find web servers and their page titles"
+    summary: "Checks common web ports across a subnet, shows only hosts with them open, and prints each page title."
+    flags:
+      - id: nmap-p
+        args: { ports: "80,443,8080" }
+      - id: nmap-script
+        args: { scripts: "http-title" }
+      - id: nmap-open
+    target: "192.168.1.0/24"
+    command: "nmap -p 80,443,8080 --script http-title --open 192.168.1.0/24"
+    goals: [recon, enumeration]
+
+  - id: nmap-from-file
+    name: "Scan a list of targets from a file"
+    summary: "Reads hosts from targets.txt, scans the top 100 ports and saves a readable report. No target on the command line."
+    flags:
+      - id: nmap-iL
+        args: { file: "targets.txt" }
+      - id: nmap-F
+      - id: nmap-oN
+        args: { file: "results.txt" }
+    target: ""
+    command: "nmap -iL targets.txt -F -oN results.txt"
+    goals: [recon]
+
+  # ---------- Vulnerability checks ----------
+  - id: nmap-vuln-scan
+    name: "Known-vulnerability check on web ports"
+    summary: "Versions plus the NSE vuln scripts on ports 80 and 443. Can be intrusive: lab targets only."
+    flags:
+      - id: nmap-p
+        args: { ports: "80,443" }
+      - id: nmap-sV
+      - id: nmap-script
+        args: { scripts: "vuln" }
+    target: "10.0.0.5"
+    command: "nmap -p 80,443 -sV --script vuln 10.0.0.5"
+    goals: [vuln-assessment]
+
+  # ---------- Firewalls ----------
+  - id: nmap-firewall-ack
+    name: "Map firewall rules"
+    summary: "ACK scan shows which ports are filtered by a firewall (not which are open). --reason explains each result. Needs root."
+    flags:
+      - id: nmap-sA
+      - id: nmap-p
+        args: { ports: "22,80,443" }
+      - id: nmap-reason
+    target: "10.0.0.5"
+    command: "nmap -sA -p 22,80,443 --reason 10.0.0.5"
+    goals: [recon]
+
+  # ---------- Practice target ----------
+  - id: nmap-scanme
+    name: "Safe practice on scanme.nmap.org"
+    summary: "The Nmap project allows light scans of this host. Top 100 ports with versions, default timing. Don't hammer it."
+    flags:
+      - id: nmap-F
+      - id: nmap-sV
+    target: "scanme.nmap.org"
+    command: "nmap -F -sV scanme.nmap.org"
+    goals: [recon, enumeration]

@@ -1,0 +1,221 @@
+# yaml-language-server: $schema=../../../schemas/flag-file.schema.json
+# Time values accept ms, s, m or h (e.g. 500ms, 30s, 5m). Plain numbers are seconds.
+# Default values below come from the reference guide; re-check them against `nmap -V` on your machine.
+
+- id: nmap-T
+  flag: "-T"
+  name: "Timing template"
+  summary: >
+    Preset speed from 0 (paranoid) to 5 (insane). 3 is the default. Higher is faster
+    and noisier. Individual timing options below override the template.
+  group: timing
+  args:
+    - name: level
+      type: choice
+      placeholder: "4"
+      join: attached
+      choices:
+        - value: "0"
+          note: "Paranoid: one probe at a time, 5 minutes apart. For slipping under IDS thresholds; extremely slow."
+        - value: "1"
+          note: "Sneaky: one probe at a time, 15 seconds apart."
+        - value: "2"
+          note: "Polite: about 0.4 seconds between probes to ease bandwidth and target load."
+        - value: "3"
+          note: "Normal: the default, parallel with dynamic timeouts. Same as no -T flag."
+        - value: "4"
+          note: "Aggressive: max-rtt-timeout 1250ms, initial 500ms, max-retries 6. Good for lab and LAN work."
+        - value: "5"
+          note: "Insane: max-rtt-timeout 300ms, max-retries 2, host-timeout 15m. May miss open ports."
+  needs_root: false
+  noise: medium
+  status: current
+  examples:
+    - cmd: "nmap -T4 -F 192.168.1.0/24"
+      note: "Common choice on a fast lab network"
+    - cmd: "sudo nmap -T1 -p 1-100 10.0.0.5"
+      note: "Slow and quiet"
+  verified:
+    status: unverified
+
+- id: nmap-host-timeout
+  flag: "--host-timeout"
+  name: "Give up on slow hosts"
+  summary: >
+    Abandons a host after the given time, such as 30s or 5m, so one slow target does
+    not stall the sweep.
+  group: timing
+  args:
+    - name: time
+      placeholder: "30s"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --host-timeout 30s 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-min-rate
+  flag: "--min-rate"
+  name: "Minimum packets per second"
+  summary: >
+    Sends at least this many packets per second. A big speed-up for full port scans
+    in labs; too high a rate on a weak link causes missed ports.
+  group: timing
+  args:
+    - name: pps
+      type: number
+      placeholder: "1000"
+  needs_root: false
+  noise: high
+  status: current
+  examples:
+    - cmd: "nmap -p- --min-rate 1000 10.0.0.5"
+      note: "Fast full-port scan of a lab box"
+  verified:
+    status: unverified
+
+- id: nmap-max-retries
+  flag: "--max-retries"
+  name: "Retransmission limit"
+  summary: >
+    How many times Nmap resends a probe to a port that did not answer. Default is 10
+    (6 with -T4, 2 with -T5). Lower is faster but may miss ports.
+  group: timing
+  args:
+    - name: count
+      type: number
+      placeholder: "2"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --max-retries 2 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-min-parallelism
+  flag: "--min-parallelism"
+  name: "Minimum parallel probes"
+  summary: "Sets the least number of probes kept in flight at once (a probe count, not a time)."
+  group: timing
+  args:
+    - name: probes
+      type: number
+      placeholder: "50"
+  needs_root: false
+  noise: medium
+  status: current
+  examples:
+    - cmd: "nmap --min-parallelism 50 192.168.1.0/24"
+      note: "Force more speed"
+  verified:
+    status: unverified
+
+- id: nmap-max-parallelism
+  flag: "--max-parallelism"
+  name: "Maximum parallel probes"
+  summary: "Caps the number of probes in flight at once. Use 1 to send probes one at a time."
+  group: timing
+  args:
+    - name: probes
+      type: number
+      placeholder: "1"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --max-parallelism 1 10.0.0.5"
+      note: "One probe at a time"
+  verified:
+    status: unverified
+
+- id: nmap-max-rtt-timeout
+  flag: "--max-rtt-timeout"
+  name: "Longest wait per probe"
+  summary: "Upper limit on how long Nmap waits for a reply before retrying or giving up."
+  group: timing
+  args:
+    - name: time
+      placeholder: "500ms"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --max-rtt-timeout 500ms 192.168.1.0/24"
+      note: "Good for fast LANs"
+  verified:
+    status: unverified
+
+- id: nmap-min-rtt-timeout
+  flag: "--min-rtt-timeout"
+  name: "Shortest wait per probe"
+  summary: >
+    Lower limit on the probe timeout. Raise it on slow or lossy links so Nmap stops
+    giving up too early.
+  group: timing
+  args:
+    - name: time
+      placeholder: "200ms"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --min-rtt-timeout 200ms 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-initial-rtt-timeout
+  flag: "--initial-rtt-timeout"
+  name: "Starting wait per probe"
+  summary: >
+    First probe timeout before Nmap learns the real round-trip time. Starts
+    conservatively high by default.
+  group: timing
+  args:
+    - name: time
+      placeholder: "300ms"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --initial-rtt-timeout 300ms 192.168.1.0/24"
+  verified:
+    status: unverified
+
+- id: nmap-scan-delay
+  flag: "--scan-delay"
+  name: "Fixed delay between probes"
+  summary: >
+    Waits at least this long between probes to one host. Helps with rate limiting and
+    IDS thresholds.
+  group: timing
+  args:
+    - name: time
+      placeholder: "1s"
+  needs_root: false
+  noise: low
+  status: current
+  examples:
+    - cmd: "nmap --scan-delay 1s 10.0.0.5"
+  verified:
+    status: unverified
+
+- id: nmap-max-scan-delay
+  flag: "--max-scan-delay"
+  name: "Cap on adaptive delay"
+  summary: >
+    Limits how far Nmap will stretch its delay between probes when it detects packet
+    loss or rate limiting.
+  group: timing
+  args:
+    - name: time
+      placeholder: "10ms"
+  needs_root: false
+  noise: medium
+  status: current
+  examples:
+    - cmd: "nmap --max-scan-delay 10ms 192.168.1.0/24"
+  verified:
+    status: unverified

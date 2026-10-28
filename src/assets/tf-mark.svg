@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 96" width="520" height="480" role="img" aria-label="TharunForge mark">
+<g transform="translate(0 0)">
+<path d="M80.85 54.00 C76.88 70.87 63.15 83.27 48.00 90.00 C30 82 14 66 14 44 V18 L48 6 L82 18 V41" fill="none" stroke="#3DA5FF" stroke-width="6" stroke-linejoin="round"/>
+<rect x="25" y="28" width="46" height="8" fill="#F4F8FC"/>
+<rect x="40" y="28" width="8" height="40" fill="#F4F8FC"/>
+<rect x="48" y="44" width="16" height="7" fill="#F4F8FC"/>
+<path d="M68.5 47.5 H96" stroke="#3DA5FF" stroke-width="3" stroke-linecap="round" fill="none"/>
+<circle cx="68.5" cy="47.5" r="4.5" fill="#3DA5FF"/>
+<circle cx="98" cy="47.5" r="4" fill="#3DA5FF"/>
+</g>
+</svg>
