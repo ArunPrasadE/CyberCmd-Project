@@ -3,6 +3,8 @@
 Build and understand security commands. Pick options, get a valid command, and see what every part does.
 Starts with Nmap. **Generate and explain only: the app never runs anything.**
 
+**Live demo:** https://cybercmd.arun-prasad.workers.dev
+
 Every flag carries a "verified in lab" status that is only set after I ran it myself and wrote down what I saw.
 
 ## Stack
